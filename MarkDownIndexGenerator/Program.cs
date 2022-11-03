@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.Net;
 using CommandLine;
 using MarkDownIndexGenerator.Models;
 
@@ -7,7 +8,16 @@ Parser.Default.ParseArguments<InputOption>(args).WithParsed(Run);
 
 static void Run(InputOption option)
 {
-    var tree = GetMarkDownFileTree(option.RootPath);
+    if (string.IsNullOrEmpty(option.RootFile) || !File.Exists(option.RootFile))
+    {
+        Console.WriteLine("Root file not found.");
+        return;
+    }
+
+    var tree = GetMarkDownFileTree(Path.GetDirectoryName(Path.GetFullPath(option.RootFile)) ??
+                                   throw new InvalidOperationException());
+    // set root file
+    tree.Value = new FileInfo(option.RootFile);
     PrintTree(tree);
 }
 
@@ -22,10 +32,7 @@ static void PrintTree(Tree<FileSystemInfo> tree, string prefix = "")
 
 static Tree<FileSystemInfo> GetMarkDownFileTree(string path)
 {
-    var result = new Tree<FileSystemInfo>
-    {
-        Value = new FileInfo(path)
-    };
+    var result = new Tree<FileSystemInfo>();
     var dirInfo = new DirectoryInfo(path);
     var dirs = dirInfo.GetDirectories().ToList();
     var fileInfos = dirInfo.GetFiles("*.md", SearchOption.TopDirectoryOnly);

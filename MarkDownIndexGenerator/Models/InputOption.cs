@@ -7,6 +7,6 @@ namespace MarkDownIndexGenerator.Models;
 /// </summary>
 public class InputOption
 {
-    [Option('i', "input", Required = true, HelpText = "Input path to be processed.")]
-    public string RootPath { get; set; }
+    [Option('i', "input", Required = true, HelpText = "Input file path to be processed.")]
+    public string? RootFile { get; set; }
 }
