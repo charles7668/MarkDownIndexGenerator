@@ -1,8 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace MarkDownIndexGenerator.Services;
+namespace MarkDownIndexGenerator.Models;
 
-public static class FileService
+public static class IndexInserter
 {
     /// <summary>
     ///     get where will insert index text

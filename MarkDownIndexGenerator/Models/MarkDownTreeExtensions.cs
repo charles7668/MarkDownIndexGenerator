@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using MarkDownIndexGenerator.Services;
 
 namespace MarkDownIndexGenerator.Models;
 
@@ -41,10 +40,10 @@ public static class MarkDownTreeExtensions
         var info = tree.Value;
         if (info.Attributes != FileAttributes.Directory)
         {
-            var position = FileService.GetInsertPosition(info);
+            var position = IndexInserter.GetInsertPosition(info);
             var sb = new StringBuilder();
             tree.PrintTree(sb, "- ", 2);
-            FileService.InsertIndexIntoFile(info.FullName, sb.ToString(), position);
+            IndexInserter.InsertIndexIntoFile(info.FullName, sb.ToString(), position);
         }
 
         var childs = tree.Childs;
