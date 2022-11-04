@@ -76,7 +76,6 @@ public static class MarkDownTreeExtensions
         var childs = tree.Childs;
         if (childs == null)
             return;
-        foreach (var child in childs)
-            InsertIndexIntoTree(child, root);
+        Parallel.ForEach(childs, child => InsertIndexIntoTree(child, root));
     }
 }
