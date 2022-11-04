@@ -62,20 +62,21 @@ public static class MarkDownTreeExtensions
     /// </summary>
     /// <param name="tree">tree</param>
     /// <param name="root">root node</param>
-    public static void InsertIndexIntoTree(this MarkDownTree tree, MarkDownTree root)
+    /// <param name="title">title</param>
+    public static void InsertIndexIntoTree(this MarkDownTree tree, MarkDownTree root, string title)
     {
         var info = tree.Value;
         if (info.Attributes != FileAttributes.Directory)
         {
-            var position = IndexInserter.GetInsertPosition(info);
+            var position = IndexInserter.GetInsertPosition(info, title);
             var sb = new StringBuilder();
             tree.PrintTree(sb, "- ", 2, 0, root.Value.FullName);
-            IndexInserter.InsertIndexIntoFile(info.FullName, sb.ToString(), position);
+            IndexInserter.InsertIndexIntoFile(info.FullName, sb.ToString(), position, title);
         }
 
         var childs = tree.Childs;
         if (childs == null)
             return;
-        Parallel.ForEach(childs, child => InsertIndexIntoTree(child, root));
+        Parallel.ForEach(childs, child => InsertIndexIntoTree(child, root, title));
     }
 }

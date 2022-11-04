@@ -19,5 +19,5 @@ static void Run(InputOption option)
     var childs = tree.Childs;
     if (childs != null)
         tree.Childs = childs.Where(x => x.Value.FullName != tree.Value.FullName).ToList();
-    tree.InsertIndexIntoTree(tree);
+    tree.InsertIndexIntoTree(tree, option.TitleText);
 }

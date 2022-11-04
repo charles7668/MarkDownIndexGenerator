@@ -8,15 +8,16 @@ public static class IndexInserter
     ///     get where will insert index text
     /// </summary>
     /// <param name="info">file info</param>
+    /// <param name="title">title</param>
     /// <returns></returns>
-    public static (int startLine, int endLine) GetInsertPosition(FileSystemInfo info)
+    public static (int startLine, int endLine) GetInsertPosition(FileSystemInfo info, string title)
     {
         var startLine = -1;
         var endLine = -1;
         if (!File.Exists(info.FullName))
             return (startLine, endLine);
         using var sr = new StreamReader(info.FullName);
-        var regexStart = new Regex(@"^#+ Index");
+        var regexStart = new Regex(@$"^#+ {title}");
         var regexEnd = new Regex(@"^ *- ");
         var lineNumber = 0;
         while (sr.ReadLine() is { } temp)
@@ -47,8 +48,9 @@ public static class IndexInserter
     /// <param name="inputFile">input file</param>
     /// <param name="insertText">insert text</param>
     /// <param name="positionInfo">the position where you want insert, tuple(start , end)</param>
+    /// <param name="title">title</param>
     public static void InsertIndexIntoFile(string inputFile, string insertText,
-        (int startLine, int endLine) positionInfo)
+        (int startLine, int endLine) positionInfo, string title)
     {
         var tempFile = Guid.NewGuid().ToString();
         using (var sw = new StreamWriter(tempFile))
@@ -62,8 +64,11 @@ public static class IndexInserter
 
             if (positionInfo.startLine == -1)
             {
-                sw.WriteLine("# Index");
+                sw.WriteLine($"# {title}");
                 Insert();
+                using var sr = new StreamReader(inputFile);
+                while (sr.ReadLine() is { } temp)
+                    sw.WriteLine(temp);
             }
             else
             {
