@@ -12,14 +12,41 @@ public static class MarkDownTreeExtensions
     /// <param name="prefix">prefix</param>
     /// <param name="maxLevel">max print level</param>
     /// <param name="currentLevel">current level</param>
+    /// <param name="rootPath">root path</param>
     public static void PrintTree(this MarkDownTree tree, StringBuilder stringBuilder, string prefix = "- ",
         int maxLevel = 1,
-        int currentLevel = 0)
+        int currentLevel = 0, string rootPath = "")
     {
         var info = tree.Value;
+
+        void GenerateDirectoryIndex(StringBuilder sb, string prefixText, string fileName)
+        {
+            stringBuilder.AppendLine($"{prefixText}{fileName}");
+        }
+
+        void GenerateFileIndex(StringBuilder sb, string prefixText, string fileName)
+        {
+            var link = info.FullName.Replace(" ", "%20");
+            if (!string.IsNullOrEmpty(rootPath))
+            {
+                FileSystemInfo rootInfo = new FileInfo(rootPath);
+                rootPath = rootInfo.Attributes != FileAttributes.Directory
+                    ? Path.GetDirectoryName(rootInfo.FullName)!
+                    : rootInfo.FullName;
+                link = link.Replace(rootPath, string.Empty).TrimStart('\\');
+            }
+
+            stringBuilder.AppendLine($"{prefixText}[{fileName}]({link})");
+        }
+
         if (currentLevel > 0)
         {
-            stringBuilder.AppendLine(prefix + Path.GetFileNameWithoutExtension(info.FullName));
+            var fileName = Path.GetFileNameWithoutExtension(info.FullName);
+            Action<StringBuilder, string, string> generateAction = info.Attributes == FileAttributes.Directory
+                ? GenerateDirectoryIndex
+                : GenerateFileIndex;
+            generateAction(stringBuilder, prefix, fileName);
+
             prefix = "  " + prefix;
         }
 
@@ -27,7 +54,7 @@ public static class MarkDownTreeExtensions
         if (childs == null || currentLevel > maxLevel)
             return;
         foreach (var child in childs)
-            PrintTree(child, stringBuilder, prefix, maxLevel, currentLevel + 1);
+            PrintTree(child, stringBuilder, prefix, maxLevel, currentLevel + 1, rootPath);
     }
 
     /// <summary>
@@ -42,7 +69,7 @@ public static class MarkDownTreeExtensions
         {
             var position = IndexInserter.GetInsertPosition(info);
             var sb = new StringBuilder();
-            tree.PrintTree(sb, "- ", 2);
+            tree.PrintTree(sb, "- ", 2, 0, root.Value.FullName);
             IndexInserter.InsertIndexIntoFile(info.FullName, sb.ToString(), position);
         }
 
