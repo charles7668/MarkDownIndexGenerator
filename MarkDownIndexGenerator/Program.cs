@@ -13,8 +13,7 @@ static void Run(InputOption option)
         return;
     }
 
-    var tree = MarkDownTree.GetMarkDownFileTree(Path.GetDirectoryName(Path.GetFullPath(option.RootFile)) ??
-                                                throw new InvalidOperationException());
+    var tree = MarkDownTree.GetMarkDownFileTree(Path.GetFullPath(option.RootFile));
     // set root file
     tree.Value = new FileInfo(option.RootFile);
     var childs = tree.Childs;
